@@ -1,0 +1,13 @@
+[gd_scene load_steps=4 format=3 uid="uid://cd43dd08dl03v"]
+
+[ext_resource type="Script" path="res://scripts/star/chunk.gd" id="1_5ggt6"]
+[ext_resource type="Script" path="res://scripts/star/Terrain.gd" id="1_41r4l"]
+[ext_resource type="Material" uid="uid://bfxgprui4klf6" path="res://materials/star/earth.tres" id="2_b1o2l"]
+
+[node name="Chunk" type="Node3D"]
+script = ExtResource("1_5ggt6")
+
+[node name="Terrain" type="MeshInstance3D" parent="."]
+script = ExtResource("1_41r4l")
+material = ExtResource("2_b1o2l")
+resolution = 50

@@ -1,0 +1,10 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://bfxgprui4klf6"]
+
+[ext_resource type="Shader" path="res://shaders/star/star.gdshader" id="1_ygli8"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_ygli8")
+shader_parameter/grass = Color(0.207843, 0.431373, 0.168627, 1)
+shader_parameter/dirt = Color(0.490196, 0.329412, 0.223529, 1)
+shader_parameter/rock = Color(0.32549, 0.32549, 0.32549, 1)

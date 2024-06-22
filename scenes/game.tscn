@@ -1,0 +1,28 @@
+[gd_scene load_steps=6 format=3 uid="uid://l0jncsuuyn5j"]
+
+[ext_resource type="PackedScene" uid="uid://cd43dd08dl03v" path="res://scenes/star/chunk.tscn" id="1_kh8dd"]
+[ext_resource type="PackedScene" uid="uid://b3id4ps2d8oth" path="res://scenes/entity/player.tscn" id="2_86c5r"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ivon1"]
+
+[sub_resource type="Sky" id="Sky_gqcqb"]
+sky_material = SubResource("ProceduralSkyMaterial_ivon1")
+
+[sub_resource type="Environment" id="Environment_ym5ou"]
+background_mode = 2
+sky = SubResource("Sky_gqcqb")
+
+[node name="Game" type="Node3D"]
+
+[node name="EarthStar" type="Node3D" parent="."]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="EarthStar"]
+environment = SubResource("Environment_ym5ou")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="EarthStar"]
+transform = Transform3D(0.871539, -0.252037, -0.420591, 0.490326, 0.447989, 0.747587, 9.83979e-09, -0.857778, 0.51402, 0, 0, 0)
+
+[node name="Chunk" parent="EarthStar" instance=ExtResource("1_kh8dd")]
+
+[node name="Player" parent="EarthStar" instance=ExtResource("2_86c5r")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 29, 79, 32)
