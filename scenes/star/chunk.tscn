@@ -10,4 +10,3 @@ script = ExtResource("1_5ggt6")
 [node name="Terrain" type="MeshInstance3D" parent="."]
 script = ExtResource("1_41r4l")
 material = ExtResource("2_b1o2l")
-resolution = 50

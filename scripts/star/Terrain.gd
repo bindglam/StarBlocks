@@ -8,9 +8,7 @@ extends MeshInstance3D
 @export var flat_shaded: bool = true
 @export var terrain_terrace: int = 1
 
-var noise: FastNoiseLite
-
-const TRIANGULATIONS = [
+var TRIANGULATIONS = [
 [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
 [0, 8, 3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
 [0, 1, 9, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
@@ -273,9 +271,9 @@ class VoxelGrid:
 	var resolution: int
 	var height: int
 	
-	func _init(resolution: int, height: int):
-		self.height = height
-		self.resolution = resolution
+	func _init(_resolution: int, _height: int):
+		self.height = _height
+		self.resolution = _resolution
 		self.data.resize(resolution*height*resolution)
 		self.data.fill(1.0)
 	
@@ -285,7 +283,7 @@ class VoxelGrid:
 	func write(x: int, y: int, z: int, value: float):
 		self.data[x + self.resolution * (y + self.height * z)] = value
 	
-const POINTS = [
+var POINTS = [
 	Vector3i(0, 0, 0),
 	Vector3i(0, 0, 1),
 	Vector3i(1, 0, 1),
@@ -296,7 +294,7 @@ const POINTS = [
 	Vector3i(1, 1, 0),
 ]
 
-const EDGES = [
+var EDGES = [
 	Vector2i(0, 1),
 	Vector2i(1, 2),
 	Vector2i(2, 3),
@@ -314,17 +312,13 @@ const EDGES = [
 func scalar_field(x:float, y:float, z:float):
 	return (x * x + y * y + z * z)/60.0
 
-func generate():
-	randomize()
-	noise = FastNoiseLite.new()
-	noise.seed = randi_range(0, 999999)
-	
+func generate(chunk_coords: Vector2i):
 	var voxel_grid = VoxelGrid.new(resolution, height)
 	#generate terrain
 	for x in range(1, voxel_grid.resolution-1):
 		for y in range(1, voxel_grid.height-1):
 			for z in range(1, voxel_grid.resolution-1):
-				var value = noise.get_noise_3d(x, y, z)+(y+y%terrain_terrace)/float(voxel_grid.resolution)-0.5
+				var value = Global.current_star.noise.get_noise_3d(x+chunk_coords.x*13, y, z+chunk_coords.y*13)+(y+y%terrain_terrace)/float(voxel_grid.height)-0.5
 				voxel_grid.write(x, y, z, value)
 	
 	#march
@@ -335,21 +329,24 @@ func generate():
 				march_cube(x, y, z, voxel_grid, vertices)
 				
 	#draw
-	var surface_tool = SurfaceTool.new()
-	surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
-	
-	if flat_shaded:
-		surface_tool.set_smooth_group(-1)
-	
-	for vert in vertices:
-		surface_tool.add_vertex(vert)
-	
-	surface_tool.generate_normals()
-	surface_tool.index()
-	surface_tool.set_material(material)
-	mesh = surface_tool.commit()
-	create_trimesh_collision()
+	var draw := func():
+		var surface_tool = SurfaceTool.new()
+		surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
 		
+		if flat_shaded:
+			surface_tool.set_smooth_group(-1)
+		
+		for vert in vertices:
+			surface_tool.add_vertex(vert)
+		
+		surface_tool.generate_normals()
+		surface_tool.index()
+		surface_tool.set_material(material)
+		mesh = surface_tool.commit()
+		create_trimesh_collision()
+	
+	draw.call_deferred()
+	
 func march_cube(x:int, y:int, z:int, voxel_grid:VoxelGrid, vertices:PackedVector3Array):
 	var tri = get_triangulation(x, y, z, voxel_grid)
 	for edge_index in tri:
@@ -360,8 +357,8 @@ func march_cube(x:int, y:int, z:int, voxel_grid:VoxelGrid, vertices:PackedVector
 		var pos_a = Vector3(x+p0.x, y+p0.y, z+p0.z)
 		var pos_b = Vector3(x+p1.x, y+p1.y, z+p1.z)
 		
-		var position = calculate_interpolation(pos_a, pos_b, voxel_grid)
-		vertices.append(position)
+		var pos = calculate_interpolation(pos_a, pos_b, voxel_grid)
+		vertices.append(pos)
 
 func calculate_interpolation(a:Vector3, b:Vector3, voxel_grid:VoxelGrid):
 	var val_a = voxel_grid.read(a.x, a.y, a.z)

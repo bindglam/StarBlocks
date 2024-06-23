@@ -1,3 +1,4 @@
+class_name Player
 extends CharacterBody3D
 
 @export var walk_speed: float = 500.0
@@ -5,10 +6,21 @@ extends CharacterBody3D
 @export var mouse_sensitivity: float = 0.01
 
 @onready var camera: Camera3D = $Camera3D
+@onready var loading_screen: ColorRect = $Camera3D/CanvasLayer/LoadingScreen
+@onready var loading_progress_label: Label = $Camera3D/CanvasLayer/LoadingScreen/ProgressLabel
 
 var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 
 var speed: float = walk_speed
+
+func _init():
+	Global.player = self
+
+func _process(delta):
+	loading_progress_label.text = str(Global.preloaded_chunk_count) + " / 100"
+	
+	if Global.preloaded_chunk_count >= 25:
+		loading_screen.visible = false
 
 func _physics_process(delta):
 	if not is_on_floor():
